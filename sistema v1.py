@@ -5,7 +5,7 @@ import sqlite3
 
 class BancoDeDados:
     def conectarBanco(self):
-        self.banco = sqlite3.connect("Sistema de Controle de Funcionários/data.db")
+        self.banco = sqlite3.connect("data.db")
         self.root = self.banco.cursor()
         self.root.execute("CREATE TABLE IF NOT EXISTS usuarios (id_user INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, nome TEXT UNIQUE NOT NULL, senha TEXT NOT NULL, root BOOLEAN NOT NULL)")
         self.root.execute("CREATE TABLE IF NOT EXISTS funcionarios (cpf INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, nome TEXT NOT NULL, nascimento DATE NOT NULL, funcao TEXT NOT NULL, data_inicio DATE NOT NULL)")
