@@ -9,7 +9,7 @@ class BancoDeDados:
         self.root = self.banco.cursor()
         self.root.execute("CREATE TABLE IF NOT EXISTS usuarios (id_user INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, nome TEXT UNIQUE NOT NULL, senha TEXT NOT NULL, root BOOLEAN NOT NULL)")
         self.root.execute("CREATE TABLE IF NOT EXISTS funcionarios (cpf INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, nome TEXT NOT NULL, nascimento DATE NOT NULL, funcao TEXT NOT NULL, data_inicio DATE NOT NULL)")
-        self.root.execute("CREATE TABLE IF NOT EXISTS punicao (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, tipo TEXT NOT NULL, motivo TEXT NOT NULL, data DATE NOT NULL, cpf INTEGER NOT NULL, FOREIGN KEY(cpf) REFERENCES funcionarios(cpf))")
+        self.root.execute("CREATE TABLE IF NOT EXISTS punicao (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, tipo TEXT NOT NULL, motivo TEXT NOT NULL, data DATE NOT NULL, cpf_func INTEGER NOT NULL, FOREIGN KEY(cpf_func) REFERENCES funcionarios(cpf))")
 
     def cadastrar_Funcionario(self, cpf, nome, nascimento, funcao, data_inicio):
         cpfBanco = cpf.replace(".","").replace("-","")[:11]
@@ -30,7 +30,7 @@ class BancoDeDados:
         # ALTERANDO FORMATO DA DATA
         dataBanco = Funcionalidades.inverterData(self, datainvert=data.get())   
         # ADICIONANDO FALTA NO BANCO DE DADOS
-        self.root.execute("INSERT INTO punicao (tipo, motivo, data, cpf) VALUES ('FALTA', '"+motivo.get()+"', '"+dataBanco+"', '"+cpf+"')")
+        self.root.execute("INSERT INTO punicao (tipo, motivo, data, cpf_func) VALUES ('FALTA', '"+motivo.get()+"', '"+dataBanco+"', '"+cpf+"')")
         print(f"FALTA + {motivo.get()} + {dataBanco} + {cpf}")
         self.banco.commit()
 
@@ -38,7 +38,7 @@ class BancoDeDados:
         # ALTERANDO FORMATO DA DATA
         dataBanco = Funcionalidades.inverterData(self, datainvert=data.get())
         # ADICIONANDO ADVERTÊNCIA NO BANCO DE DADOS
-        self.root.execute("INSERT INTO punicao (tipo, motivo, data, cpf) VALUES ('ADVERTÊNCIA', '"+motivo.get()+"', '"+dataBanco+"', '"+cpf+"')")
+        self.root.execute("INSERT INTO punicao (tipo, motivo, data, cpf_func) VALUES ('ADVERTÊNCIA', '"+motivo.get()+"', '"+dataBanco+"', '"+cpf+"')")
         print(f"ADVERTÊNCIA + {motivo.get()} + {dataBanco} + {cpf}")
         self.banco.commit()
 
@@ -46,22 +46,22 @@ class BancoDeDados:
         # ALTERANDO FORMATO DA DATA
         dataBanco = Funcionalidades.inverterData(self, datainvert=data.get())
         # ADICIONANDO SUSPENSÃO NO BANCO DE DADOS
-        self.root.execute("INSERT INTO punicao (tipo, motivo, data, cpf) VALUES ('SUSPENSÃO', '"+motivo.get()+"', '"+dataBanco+"', '"+cpf+"')")
+        self.root.execute("INSERT INTO punicao (tipo, motivo, data, cpf_func) VALUES ('SUSPENSÃO', '"+motivo.get()+"', '"+dataBanco+"', '"+cpf+"')")
         print(f"SUSPENSÃO + {motivo.get()} + {dataBanco} + {cpf}")
         self.banco.commit()
 
     def contFaltas(self, cpf):
-        self.root.execute("SELECT COUNT(tipo) FROM punicao WHERE cpf = '"+cpf+"' AND tipo = 'FALTA'")
+        self.root.execute("SELECT COUNT(tipo) FROM punicao WHERE cpf_func = '"+cpf+"' AND tipo = 'FALTA'")
         contador = self.root.fetchall()
         return contador
     
     def contAdvertencias(self, cpf):
-        self.root.execute("SELECT COUNT(tipo) FROM punicao WHERE cpf = '"+cpf+"' AND tipo = 'ADVERTÊNCIA'")
+        self.root.execute("SELECT COUNT(tipo) FROM punicao WHERE cpf_func = '"+cpf+"' AND tipo = 'ADVERTÊNCIA'")
         contador = self.root.fetchall()
         return contador
 
     def contSuspensao(self, cpf):
-        self.root.execute("SELECT COUNT(tipo) FROM punicao WHERE cpf = '"+cpf+"' AND tipo = 'SUSPENSÃO'")
+        self.root.execute("SELECT COUNT(tipo) FROM punicao WHERE cpf_func = '"+cpf+"' AND tipo = 'SUSPENSÃO'")
         contador = self.root.fetchall()
         return contador        
 
@@ -556,7 +556,7 @@ class App(BancoDeDados, Validadores, Funcionalidades):
         self.listaOcorrencias.column("#3", width=300)
         self.listaOcorrencias.column("#3", width=200)
         # MOSTRAR OCORRÊNCIAS NA TREEVIEW
-        self.root.execute("SELECT tipo, motivo, data, cpf FROM punicao ORDER BY data DESC")
+        self.root.execute("SELECT punicao.tipo, punicao.motivo, punicao.data, funcionarios.nome FROM funcionarios JOIN punicao ON funcionarios.cpf = punicao.cpf_func ORDER BY punicao.data DESC")
         ocorrencias = self.root.fetchall()
         for ocorr in ocorrencias:
             self.listaOcorrencias.insert("", "end", values=ocorr)
@@ -585,7 +585,7 @@ class App(BancoDeDados, Validadores, Funcionalidades):
         self.scrollFaltas.place(relx=0.96, rely=0.07, relwidth=0.03, relheight=0.97)
         # MOSTRAR FALTAS NA TREEVIEW
         tipo = "FALTA"
-        self.root.execute("SELECT tipo, motivo, data, cpf FROM punicao WHERE tipo = '"+tipo+"' AND cpf = '"+self.cpfFuncionario+"' ORDER BY data")
+        self.root.execute("SELECT punicao.tipo, punicao.motivo, punicao.data, funcionarios.nome FROM punicao JOIN funcionarios ON funcionarios.cpf = punicao.cpf_func WHERE tipo = '"+tipo+"' AND cpf_func = '"+self.cpfFuncionario+"' ORDER BY data DESC;")
         faltas = self.root.fetchall()
         for falta in faltas:
             self.listaFaltas.insert("", "end", values=falta)
@@ -614,7 +614,7 @@ class App(BancoDeDados, Validadores, Funcionalidades):
         self.scrollAdvertencias.place(relx=0.96, rely=0.07, relwidth=0.03, relheight=0.97)
         # MOSTRAR ADVERTÊNCIAS NA TREEVIEW
         tipo = "ADVERTÊNCIA"
-        self.root.execute("SELECT tipo, motivo, data, cpf FROM punicao WHERE tipo = '"+tipo+"' AND cpf = '"+self.cpfFuncionario+"'")
+        self.root.execute("SELECT punicao.tipo, punicao.motivo, punicao.data, funcionarios.nome FROM punicao JOIN funcionarios ON funcionarios.cpf = punicao.cpf_func WHERE tipo = '"+tipo+"' AND cpf_func = '"+self.cpfFuncionario+"' ORDER BY data DESC;")
         advertencias = self.root.fetchall()
         for adv in advertencias:
             self.listaAdvertencias.insert("", "end", values=adv)
@@ -643,7 +643,7 @@ class App(BancoDeDados, Validadores, Funcionalidades):
         self.scrollSuspensoes.place(relx=0.96, rely=0.07, relwidth=0.03, relheight=0.97)
         # MOSTRAR SUSPENSÕES NA TREEVIEW
         tipo = "SUSPENSÃO"
-        self.root.execute("SELECT tipo, motivo, data, cpf FROM punicao WHERE tipo = '"+tipo+"' AND cpf = '"+self.cpfFuncionario+"'")
+        self.root.execute("SELECT punicao.tipo, punicao.motivo, punicao.data, funcionarios.nome FROM punicao JOIN funcionarios ON funcionarios.cpf = punicao.cpf_func WHERE tipo = '"+tipo+"' AND cpf_func = '"+self.cpfFuncionario+"' ORDER BY data DESC;")
         suspensoes = self.root.fetchall()
         for susp in suspensoes:
             self.listaSuspensoes.insert("", "end", values=susp)
