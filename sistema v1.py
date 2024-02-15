@@ -17,7 +17,7 @@ class BancoDeDados:
         self.banco.commit()
     
     def btns_Funcionarios(self):
-        self.root.execute("SELECT nome FROM funcionarios")
+        self.root.execute("SELECT nome FROM funcionarios ORDER BY nome ASC")
         funcionarios = self.root.fetchall()
         return funcionarios
     
