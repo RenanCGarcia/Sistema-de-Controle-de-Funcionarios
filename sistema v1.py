@@ -326,6 +326,51 @@ class Funcionalidades:
         elif resp == False:
             tk.messagebox.showinfo(title="Aviso", message="Esse funcionário NÃO foi deletado.")
 
+    def funcBtnATT(self):
+        # ATT BOTOES FUNCIONARIOS
+        self.frameFuncionarios.destroy()
+        # Frame dos Botões de funcionários
+        self.frameFuncionarios = ctk.CTkFrame(master=self.abas.tab("Funcionários"))
+        self.frameFuncionarios.place(relx=0, rely=0.0, relwidth=0.30, relheight=0.79)
+        # Tela c/ Scroll com os botões dos funcionários
+        self.telaFuncionarios = ctk.CTkScrollableFrame(master=self.frameFuncionarios)
+        self.telaFuncionarios.place(relx=0, rely=0, relwidth=1, relheight=0.98)
+        # Botões dos funcionários
+        for func in self.btns_Funcionarios():
+            botaoFunc = ctk.CTkButton(
+                master=self.telaFuncionarios,
+                text=str(func[0]), 
+                height=35, width=350, 
+                command=lambda nome=str(func[0]): (self.selecionarFuncionario(nome), self.frameInfos.destroy()))
+            botaoFunc.pack()
+
+        # ATT FRAME OCORRENCIAS
+        self.frameOcorrencias.destroy()
+        # Frame de Ocorrências
+        self.textOcorrencias = ctk.CTkLabel(master=self.abas.tab("Ocorrências"), text="OCORRÊNCIAS:", font=("Helvetica", 32))
+        self.textOcorrencias.place(relx=0.024, rely=0.01)
+        self.frameOcorrencias = ctk.CTkFrame(master=self.abas.tab("Ocorrências"), height=800, width=600)
+        self.frameOcorrencias.place(relx=0.025, rely=0.05, relwidth=0.945, relheight=0.675)
+        # Lista Ocorrencias
+        self.listaOcorrencias = ttk.Treeview(master=self.abas.tab("Ocorrências"), height=19, column=("col1", "col2", "col3", "col4"))
+        self.listaOcorrencias.place(relx=0.025, rely=0.05, relwidth=0.945, relheight=0.675)
+        # CONFIGURAÇÃO DAS COLUNAS
+        self.listaOcorrencias.heading("#0", text="")
+        self.listaOcorrencias.heading("#1", text="TIPO")
+        self.listaOcorrencias.heading("#2", text="DATA")
+        self.listaOcorrencias.heading("#3", text="MOTIVO")
+        self.listaOcorrencias.heading("#4", text="FUNCIONÁRIO")
+        self.listaOcorrencias.column("#0", width=0)
+        self.listaOcorrencias.column("#1", width=100)
+        self.listaOcorrencias.column("#2", width=100)
+        self.listaOcorrencias.column("#3", width=300)
+        self.listaOcorrencias.column("#3", width=200)
+        # MOSTRAR OCORRÊNCIAS NA TREEVIEW
+        self.root.execute("SELECT punicao.tipo, punicao.motivo, punicao.data, funcionarios.nome FROM funcionarios JOIN punicao ON funcionarios.cpf = punicao.cpf_func ORDER BY punicao.data DESC")
+        ocorrencias = self.root.fetchall()
+        for ocorr in ocorrencias:
+            self.listaOcorrencias.insert("", "end", values=ocorr)   
+
 class TelaLogin(BancoDeDados, Validadores, Funcionalidades):
     def __init__(self):
         self.conectarBanco()
@@ -367,7 +412,7 @@ class App(BancoDeDados, Validadores, Funcionalidades):
         self.janela = ctk.CTk()
         self.propriedadesJanela()
         self.framePrincipal()
-        self.user()
+        self.user_e_att()
         self.abas()
         self.frameBotoesFuncionarios()
         self.frameSelecioneFuncionario()
@@ -385,13 +430,16 @@ class App(BancoDeDados, Validadores, Funcionalidades):
         self.framePrincipal = ctk.CTkFrame(master=self.janela, width=1280, height=720)
         self.framePrincipal.place(relx=0, rely=0, relheight=1, relwidth=1)
 
-    def user(self):
+    def user_e_att(self):
         textUser = ctk.CTkLabel(master=self.framePrincipal, text= f"Usuário: {current_user}", font=("Helvetica", 15))
         textUser.place(relx=0.005, rely=0.0)
 
+        btnATT = ctk.CTkButton(master=self.framePrincipal, text= 'Atualizar', command=self.funcBtnATT)
+        btnATT.place(relx= 0.93, rely= 0.010, relheight= 0.025, relwidth= 0.06)
+
     def abas(self):
         self.abas = ctk.CTkTabview(master=self.framePrincipal, width=1280, height=900)
-        self.abas.place(relx=0, rely=0.03)
+        self.abas.place(relx=0, rely=0.045)
         self.abas.add("Funcionários")
         self.abas.add("Cadastrar Funcionários")
         self.abas.add("Ocorrências")
@@ -399,7 +447,7 @@ class App(BancoDeDados, Validadores, Funcionalidades):
     def frameBotoesFuncionarios(self):
         # Frame dos Botões de funcionários
         self.frameFuncionarios = ctk.CTkFrame(master=self.abas.tab("Funcionários"))
-        self.frameFuncionarios.place(relx=0, rely=0, relwidth=0.30, relheight=0.79)
+        self.frameFuncionarios.place(relx=0, rely=0.0, relwidth=0.30, relheight=0.79)
         # Tela c/ Scroll com os botões dos funcionários
         self.telaFuncionarios = ctk.CTkScrollableFrame(master=self.frameFuncionarios)
         self.telaFuncionarios.place(relx=0, rely=0, relwidth=1, relheight=0.98)
