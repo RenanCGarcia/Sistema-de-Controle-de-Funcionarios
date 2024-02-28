@@ -487,7 +487,7 @@ class App(BancoDeDados, Validadores, Funcionalidades):
         self.nascimento.pack(pady=2)
         # Entrada da função do funcionário
         self.funcao = tk.StringVar(value='')
-        self.funcao_btn = ctk.CTkComboBox(master=self.abas.tab("Cadastrar Funcionários"), values=["Estagiário 6h30", "Estagiário 7h", "CLT", "Backoffice", "TI", "ADM"],
+        self.funcao_btn = ctk.CTkComboBox(master=self.abas.tab("Cadastrar Funcionários"), values=["Estagiário", "CLT", "Gerente", "TI", "Administração"],
                                       variable=self.funcao, width=400, height=35, state='readonly')
         self.funcao_btn.pack(pady=2)
         # Entrada da data de inicio do funcionário
