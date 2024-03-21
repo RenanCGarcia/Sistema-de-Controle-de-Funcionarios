@@ -147,16 +147,17 @@ class Validadores:
 
 class Funcionalidades:
     def centralizar_tela(self, tela, h, w):
-        largura = h
-        altura = w
+        altura = h
+        largura = w
 
-        largura_tela = tela.winfo_screenwidth()
         altura_tela = tela.winfo_screenheight()
+        largura_tela = tela.winfo_screenwidth()
+        
 
-        x = (largura_tela - largura) // 2
-        y = (altura_tela - altura) // 2
+        x = (largura_tela - altura) // 2
+        y = (altura_tela - largura) // 2
 
-        posicao = f"{largura}x{altura}+{x}+{y}"
+        posicao = f"{altura}x{largura}+{x}+{y}"
         print(posicao)
         tela.geometry(posicao)
 
