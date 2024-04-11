@@ -369,6 +369,7 @@ class Funcionalidades:
         # MOSTRAR OCORRÊNCIAS NA TREEVIEW
         self.root.execute("SELECT punicao.tipo, punicao.motivo, punicao.data, funcionarios.nome FROM funcionarios JOIN punicao ON funcionarios.cpf = punicao.cpf_func ORDER BY punicao.data DESC")
         ocorrencias = self.root.fetchall()
+        print(ocorrencias)
         for ocorr in ocorrencias:
             self.listaOcorrencias.insert("", "end", values=ocorr)   
 
